@@ -17,4 +17,4 @@ Please contact Marlies Oomen at marlies.oomen@umassmed.edu for additional inform
 
 ## Disclaimer
 
-These scripts are not meant to work without modification before useage, as many of the scripts (e.g. the bash scripts) will not work outside of the lsf environment that we used during this study. However, the scripts are meant to function as a log on how we did the analysis. Please read the ATAC-seq.md, CUT_RUN.md and 5C.md files for more detailed instruction on how the scripts in this github and from https://github.com/dekkerlab/cworld-dekker were used to perform genomics analysis in our study. 
+These scripts are not meant to work without modification before useage, as many of the scripts (e.g. the bash scripts) will not work outside of the lsf environment that we used during this study. However, the scripts are meant to function as a log on how we did the analysis. Please read the text files in the notes folder for more detailed instruction on how the scripts in this github and from https://github.com/dekkerlab/cworld-dekker were used to perform genomics analysis in our study. 

@@ -1,0 +1,16 @@
+bam2bigWig.sh					a. takes merged library input BAM (quality_unique) file {1}
+								b. runs perl/pebam2se_bedGraph.pl to convert paired end bam file to single end bed file with 1 bp positions and places file in output folder {2}
+								c. bins se_bedGraph file into all bins in bin_folder {3}
+								d. merges se_bedGraph file using bedtools merge
+								e. normalizes all binned and merged files using perl/bedGraph2norm.pl
+								f. converts all bedGraph files to bigWig files using chrom.sizes file {4}
+								
+			*NOTE: Before you run this shell script for the FIRST time, you must prepare for {3} & {4}. 
+			For {3}, open an interactive module (e.g. use this command in ssh: bsub -q interactive -n 1 -R rusage[mem=2048] -W 00:90 -Is bash), and use bedtools to create a bed.gz file that bins the genome into windows (e.g. use this command in ssh, if you want to create 100 bp windows: bedtools makewindows -g /share/data/umw_biocore/genome_data/human/hg19/hg19.chrom.sizes –w 100 | gzip >  ~/genome/hg19_bins/hg19_bin_100bp.bed.gz). Move this file to a directory in your home folder (e.g. ~/genome/hg19_bins)
+			For {4}, go to the directory: /share/data/umw_biocore/genome_data/human/hg19/. Then, copy the hg19.chrom.sizes files to your home folder (e.g. ~/genome/chromSizes) 
+			
+			Command (generic) example:	bsub -q ('short' <4 hrs or 'long' >4 hrs module) -e (path to error file directory) -o (path to output log directory) -n (# nodes required) -R (memory required per node) -N (notify user of progress) -u (email to contact user with progress) "path/to/pipelineB.sh {1}path/to/merged_unique_quality_BAM_file {2}path/to/output_folder {3}path/to/bins {4}path/to/chrom.sizes
+			
+			**NOTE: Directory for {2} will be created by shell_script; you may create multiple binned output files from pipelineB.sh by adding more binned files to your bin folder in {3}
+			
+			Command example:	bsub -q short -W 04:00 -e /home/mo70w/lsf_jobs/LSB_%J.err -o /home/mo70w/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=4096] -N -u marlies.oomen@umassmed.edu "~/scripts/git/CTCF_in_mitosis_GR_2018/scripts/shell/pipelineB.sh ~/farline/test_peter/pipeA/HFFp41-WT-ALL/HFFp41-WT-ALL.bam ~/farline/test_peter/pipeB ~/genome/new_bins/ ~/genome/chrom.sizes"

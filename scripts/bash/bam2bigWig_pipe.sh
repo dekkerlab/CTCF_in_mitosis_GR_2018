@@ -23,7 +23,7 @@ echo "Hi! Start of pipelineB for $filename_bam";
 echo " ";
 
 #convert pe_bam to se_bedGraph
-bsub -q short -W 04:00 -e $HOME/lsf_jobs/LSB_%J.err -o $HOME/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=500] -N -u $USER -J pebam2bed$filename_bam "perl $HOME/scripts/git/ATACpipe/perl/pebam2se_bedGraph_4_5bp.pl $bamFile";
+bsub -q short -W 04:00 -e $HOME/lsf_jobs/LSB_%J.err -o $HOME/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=500] -N -u $USER -J pebam2bed$filename_bam "perl $HOME/scripts/git/CTCF_in_mitosis_GR_2018/scripts/perl/pebam2se_bedGraph_4_5bp.pl $bamFile";
 bsub -q short -W 02:30 -e $HOME/lsf_jobs/LSB_%J.err -o $HOME/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=100] -N -u $USER -J move_bed$filename_bam -w pebam2bed$filename_bam "mv $bamFile.single_end.bedGraph.gz $outputFolder/$filename_bam/se_bedGraph/$filename_bam.single_end.bedGraph.gz";
 bsub -q long -W 24:00 -e $HOME/lsf_jobs/LSB_%J.err -o $HOME/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=12288] -N -u $USER -J bed2sort$filename_bam -w move_bed$filename_bam "zcat $outputFolder/$filename_bam/se_bedGraph/$filename_bam.single_end.bedGraph.gz | sort -s -k 1,1 -k 2,2n | gzip > $outputFolder/$filename_bam/se_bedGraph/$filename_bam.single_end.sort.bedGraph.gz";
  
@@ -35,7 +35,7 @@ for f in  $binFolder/*;
 	do 
 		filename_bin=$(basename $f);
 		bsub -q long -W 24:00 -e $HOME/lsf_jobs/LSB_%J.err -o $HOME/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=12288] -N -u $USER -J bed2bin$filename_bam$filename_bin -w bed2sort$filename_bam "bedtools intersect -a $f -b $outputFolder/$filename_bam/se_bedGraph/$filename_bam.single_end.sort.bedGraph.gz -c -sorted | gzip > $outputFolder/$filename_bam/binned_data/bedGraph/$filename_bam.single_end.sort.bedGraph.$filename_bin.bedGraph.gz";
-		bsub -q short -W 04:00 -e $HOME/lsf_jobs/LSB_%J.err -o $HOME/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=8192] -N -u $USER -J normalizing$filename_bam$filename_bin -w bed2bin$filename_bam$filename_bin "perl $HOME/scripts/git/ATACpipe/perl/bedGraph2norm.pl $outputFolder/$filename_bam/binned_data/bedGraph/$filename_bam.single_end.sort.bedGraph.$filename_bin.bedGraph.gz";
+		bsub -q short -W 04:00 -e $HOME/lsf_jobs/LSB_%J.err -o $HOME/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=8192] -N -u $USER -J normalizing$filename_bam$filename_bin -w bed2bin$filename_bam$filename_bin "perl $HOME/scripts/git/CTCF_in_mitosis_GR_2018/scripts/perl/bedGraph2norm.pl $outputFolder/$filename_bam/binned_data/bedGraph/$filename_bam.single_end.sort.bedGraph.$filename_bin.bedGraph.gz";
 		echo "binning $filename_bam.single_end.sort.bedGraph for $filename_bin"; 
 		echo " ";
 		#convert binned file to bigWig
@@ -48,7 +48,7 @@ for f in  $binFolder/*;
 	
 #merging
 bsub -q short -W 02:00 -e $HOME/lsf_jobs/LSB_%J.err -o $HOME/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=4096] -N -u $USER -J bed2merge$filename_bam -w bed2sort$filename_bam "bedtools merge -i $outputFolder/$filename_bam/se_bedGraph/$filename_bam.single_end.sort.bedGraph.gz -c 4 -o sum | gzip > $outputFolder/$filename_bam/merged_data/bedGraph/$filename_bam.single_end.merged_sum.bedGraph.gz";	
-bsub -q short -W 02:00 -e $HOME/lsf_jobs/LSB_%J.err -o $HOME/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=4096] -N -u $USER -J normalizingMerge$filename_bam -w bed2merge$filename_bam "perl $HOME/scripts/git/ATACpipe/perl/bedGraph2norm.pl $outputFolder/$filename_bam/merged_data/bedGraph/$filename_bam.single_end.merged_sum.bedGraph.gz";
+bsub -q short -W 02:00 -e $HOME/lsf_jobs/LSB_%J.err -o $HOME/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=4096] -N -u $USER -J normalizingMerge$filename_bam -w bed2merge$filename_bam "perl $HOME/scripts/git/CTCF_in_mitosis_GR_2018/scripts/perl/bedGraph2norm.pl $outputFolder/$filename_bam/merged_data/bedGraph/$filename_bam.single_end.merged_sum.bedGraph.gz";
 echo "merging $filename_bam.single_end.sort.bedGraph";  
 echo " ";
 

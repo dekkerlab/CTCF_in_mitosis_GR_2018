@@ -1,0 +1,72 @@
+5C analysis notes:
+
+See for all mapping scripts: https://github.com/dekkerlab/cMapping
+See for all 5C downstream scripts: https://github.com/dekkerlab/cworld-dekker
+For balancing data: https://github.com/blajoie/tab2hdf, https://github.com/blajoie/hdf2tab and https://github.com/dekkerlab/balance  
+
+1. Mapping:
+perl ~/scripts/git/cMapping/scripts/utilities/processFlowCell.pl -i /nl/umw_job_dekker/cshare/data/2018/fastq/09FEB18_C-Monster/09FEB18_C-Monster_YL_b/ -o ~/nearline/scratch/fiveCData/ -s ~/nearline/scratch/ --gdir /nl/umw_job_dekker/archive/cshare/genome/ -f
+
+Make sure novoalign module is loaded
+Make sure to use the right genome for the 5C primer pool
+
+2. Combine5C
+perl ~/scripts/git/cMapping/scripts/utilities/combine5C.pl -i ~/nearline/scratch/fiveCData/09FEB18_C-Monster_YL_b/ -o ~/nearline/scratch/cData/ -s ~/nearline/scratch/ --gdir /nl/umw_job_dekker/archive/cshare/genome/ -g 5158-TalLmoHindIIIDA
+
+Necessary also when you don't want to combine 5C libraries. Combine5C.pl will give you a .gz file that contains 3 columns; primer 1 --> primer 2 --> interation frequency
+
+3. Column to matrix
+ 
+Use Column2matrix.pl to convert .gz into matrix.gz --> Make sure to sort matrix (use e.g. excel) if you have double alternating primers, otherwise you will see multiple diagonals
+
+4. Diagonal removal: 
+perl ~/projects/git/cworld-dekker/scripts/perl/subsetMatrix.pl -i $f --minDist 1 -v 
+This will remove the diagonal
+
+5. Singleton removal:
+a) perl ~/git/cworld-dekker/scripts/perl/singletonRemoval.pl -i $f --ic -v --ca 0.02 --caf 2500 -–ez
+For CTCF project we did 21, default is 12. You can try multiple numbers, to make sure outlier interactions are removed, but bins around diagonal remain.
+b) Combine all files of the removed singleton to make one file
+$ cat set1 set2 set3
+c) Redo singleton removal with the combined to-remove file, so all matrices have the same interactions removed. 
+perl ~/scripts/git/cworld-dekker/scripts/perl/singletonRemoval.pl -i $f --ic -v --ca 0.02 --caf 2500 --ez --mof to-remove-list-singleton-sum.txt
+
+6. Anchor removal
+a) perl ~/scripts/git/cworld-dekker/scripts/perl/anchorPurge.pl -i $f --ic --ca 0.02 --caf 2500 --ez
+b) Combine all files of the removed anchors to make one file
+$ cat set1 set2 set3
+c) Redo anchor removal
+perl ~/git/cworld-dekker/scripts/perl/anchorPurge.pl --ic --ca 0.02 --caf 2500 --ez --mof anchor_to_remove_sum.txt -i "$f"; done;
+
+7. Use Matrix2symmetrical.pl to make matrix symmetrical 
+If you have double alternating 5C primer design use option Self merge --> specific double alternating design. Default is off
+
+8. Scale matrix to represent same number of interactions in all your conditions
+perl ~/scripts/git/cworld-dekker/scripts/perl/scaleMatrix.pl -i $f --st 200000000"
+
+9. Balance, bin, balance
+a. Balance
+For balancing, you will first need to change the matrix.gz file to hdf file, then balance, and finally change back to matrix.gz file. 
+tab2hdf, balance, hdf2tab are all seperate github repositories with one python script each. Use default settings for all. 
+tab2hdf.py
+balance.py
+hdf2tab.py
+b. Binning
+perl ~/git/cworld-dekker/scripts/perl/binMatrix.pl --bsize 20000 --bstep 8 --bmode median -i "$f"
+Make sure to change the bstep (number of sliding windows per bin) based on bin size; e.g. --bsize 10000 --bstep 4 or --bsize 30000 --bstep 12
+c. Balance again for smoother heatmaps. 
+
+10. Draw heatmaps
+Use heatmap.pl. Make sure to use same color scale if you want to compare conditions (using parameters --start and --end)
+Example: perl ~/scripts/git/cworld-dekker/scripts/perl/heatmap.pl -i $f -v --start 0 --end 7.5
+
+11. Calculate insulation score
+Example: perl matrix2insulation.pl -i $f 
+
+12. Calculate 5C anchor plot
+Calculate 4C-style anchor plot from all or specific 5C probes (--slf lets you input just certain probes)
+Example: perl ~/scripts/git/cworld-dekker/scripts/perl/matrix2anchorPlot.pl -i $f --ymin 0 --ymax 20 --maxDist 500000 --slf anchor_pull.txt 
+
+
+
+

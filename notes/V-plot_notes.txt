@@ -1,0 +1,23 @@
+1. V-plot-pipe.sh:			
+Runs the pipeline to create aggregation plots for 25bp bins of fragment length on an element to make V-plots in R/lengths
+
+	a. Takes input file (quality bam) of dataset of interest (1) and copies to output folder (2)
+	b. Uses perl/pebam225bp_size_classes_bed_midpoints.pl or pebam225bp_size_classes_bed.pl to create 25bp bin fragment lengths and converts bam to midpoints bed or fragment ends bed
+	c. Uses HOMER to create tag directory for each bin  
+	d. Uses HOMER annotate peak module to make aggregation plot on element file of interest (3) 
+	e. Reorganizes files to correct folder and removes unnecesarry files like bins.bed and tagdirecterories 
+								
+Command example		bsub -q short -W 04:00 -e /home/mo70w/lsf_jobs/LSB_%J.err -o /home/mo70w/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=4096] -N -u marlies.oomen@umassmed.edu "~/scripts/git/CTCF_in_mitosis_GR_2018/scripts/shell/pipelineB.sh ~/farline/test_peter/pipeA/HFFp41-WT-ALL/HFFp41-WT-ALL.bam ~/farline/test_peter/pipeMatrix/CTCF_motif_with_NS_peaks ~/genome/CTCF_motif_Kim_hg19_calculatedodds.bed.gz.stretched.bed.HeLa_NS_C.bed.unstretched.bed"
+
+
+2. V_plots_squished.R
+Run R script on the cluster (usually too much data to run on own computer)
+		a. Reads input folder with aggregation file of each length bin
+		b. Convert list of files into table and then convert to matrix 
+		c. Plot heatmap based of matrix using ggplot
+		d. Output heatmap as pdf file. 
+
+Make sure to be in the git folder if using packrat. 
+Change color scale and folder naming accordingly.
+
+  											

@@ -1,0 +1,29 @@
+Mapped reads to valid reads:
+
+1.Valid_reads_pipe.sh:
+					a. Takes Bowtie2 mapped sam.gz files (from pipelineMap.sh output) in input folder {1}
+					b. Converts sam.gz to bam
+					c. runs scripts/perl/pebam2quality.pl to remove large (>2000 bp), zero (no reads), unmapped and mitochondrial chromosome (chrM) reads
+					d. runs scripts/perl/pebam2unique.pl to remove PCR duplicates
+					e. runs scripts/perl/pebam2lengths.pl to obtain sequence fragment length distribution information
+					f. runs scripts/R/lengths.R to plot all fragment lenght distributions
+					g. Places all valid, quality reads in outputfolder {2}/unique_quality
+					h. Makes index files of all bam files in /unique_quality, using samtools index
+			
+Command (generic) example:	bsub -q ('short' <4 hrs or 'long' >4 hrs module) -e (path to error file directory) -o (path to output log directory) -n (# nodes required) -R (memory required per node) -N (notify user of progress) -u (email to contact user with progress) "path/to/pipelineA.sh {1}path/to/mapped_file_directory {2}path/to/output_file_directory
+			
+*NOTE: Provide an output directory name in {2} (e.g. pipeA or pipelineA)
+			
+Command (specific) example:	bsub -q short -W 04:00 -e /home/mo70w/lsf_jobs/LSB_%J.err -o /home/mo70w/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=4096] -N -u marlies.oomen@umassmed.edu "~/scripts/git/ATACpipe/shell/pipelineA.sh ~/farline/test_peter/mapping/HFFp41-WT-R2_2.3 ~/farline/test_peter/pipeA"
+
+This will give bam files for all chunks seperate. Combine chunks in step 2. 
+
+2. Valid_reads_combine_chunks.sh:
+					a. Use samtools merge to combine bam valid reads file for all chunks
+					b. Sort merged file and repeat PCR duplicate removal
+					c. Calculated and plots fragment length distribution
+
+3. Valid_reads_combine_replicates.sh:
+Only necessary if you have replicates you want to combine
+					a. Use samtools merge to combine bam valid reads file for all chunks
+					c. Calculated and plots fragment length distribution				

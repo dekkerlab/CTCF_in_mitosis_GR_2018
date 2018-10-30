@@ -1,0 +1,20 @@
+Using HOMER for ATAC-seq data
+
+Note 1. Make sure to load the HOMER module 
+Note 2. We cannot use the entire read in the bam file, as we only can be certain the ends of the ATAC reads are accessible. Either seperate your reads in length classes (done in e.g. the V-plots) or use only the first 4bp and last 5bp of each read (scripts/perl/pebam2se_bed_4_5bp.pl)
+		--> For CUT&RUN we split up reads in larger and smaller than 120bp (seperating nucleosome spanning reads and shorter reads)
+
+
+1. Make TagDirectory for further HOMER use
+		makeTagDirectory <newfilename>/ <mappedfilename>
+2. Call peaks 
+		findPeaks <tagdirectory> -style <pick style> -o auto –i <control tagdirectory>
+3. Calculate aggregation plots or aggregation heatmaps, e.g. on CTCF motifs or TSSs
+		annotatePeaks.pl <peak file> <genome> size 4000 -hist 20 > <output file name>
+				Add the paramater -ghist to make an aggragation heatmap
+				-hist is the bin size
+				size is the parameter for the window around your aggregation coordinates, in this example +/- 2kb
+				NOTE: HOMER is sensitive for directionality of your motif list, however it uses 0/1 instead of +/-. Make sure to convert your bed file of aggregation for this. 
+
+For additional information see: http://homer.ucsd.edu/homer/index.html 
+HOMER can do so much more, however these are the main analysis tools that were used in this study. 

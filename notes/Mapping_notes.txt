@@ -1,0 +1,15 @@
+Mapping ATAC-seq data using pipelineMap.sh
+
+mapping_pipe.sh					a. Takes fastq files in folder {1}
+								b. Cats and copies to FastcpFolder {2}
+								c. Chunks fastq file into files of splitNumber {3} size and puts in R1 and R2 folder
+								d. Maps paired end reads R1 and R2 as pesam files using bowtie2 -X2000 -m1 and genome {5} and puts files in outputfolder {4}
+								
+			Command (generic) example:	bsub -q ('short' <4 hrs or 'long' >4 hrs module) -e (path to error file directory) -o (path to output log directory) -n (# nodes required) -R (memory required per node) -N (notify user of progress) -u (email to contact user with progress) "path/to/pipelineMap.sh {1}path/to/fastq_input_file_directory {2}path/for/fastq_copy_output_of_files {3}split-chunk_number (increments of 4 million) {4}path/for/bowtie2_mapping_output_files"
+			
+			*NOTE: Directories for {2} & {4} will be created by shell script
+			
+			Command (specific) example:	bsub -q short -W 04:00 -e /home/mo70w/lsf_jobs/LSB_%J.err -o /home/mo70w/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=4096] -N -u marlies.oomen@umassmed.edu "~/scripts/git/CTCF_in_mitosis_GR_2018/scripts/bash/mapping_pipe.sh ~/farline/data/fastq/24APR15_MiSeq_AEU4G-MEO-ATAC-HFFp41-WT-R2/HFFp41-WT-R2_2.3 ~/farline/test_peter/fastq/ 16000000 ~/farline/test_peter/mapping/"
+
+CUT&RUN sequencing data was mapped with same bowtie2 command, however no pipeline was created to do this as chunking of files is not necessary (small files)  
+NOTE: Make sure to trim ATAC-seq and CUT&RUN reads to ~24bp before mapping. Especially ATAC-seq libraries typically have many short reads. These won't be able to map if they are not trimmed to shorter length. Alternatively, one can use a software to remove adapter sequences from the reads before mapping.  

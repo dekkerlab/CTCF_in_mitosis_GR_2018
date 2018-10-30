@@ -1,0 +1,18 @@
+Motif search
+
+PWM Sequence from Kim et al (2007) based on ChIP data -> can't be downloaded from website anymore.
+http://www.sciencedirect.com/science/article/pii/S009286740700205X
+
+Changed the PWM to add number for odds so it can be used in HOMER --> use "calculated odds" for CTCF motif list
+
+Use scanMotifGenomeWide.pl by HOMER to generate a bedfile of CTCF motifs --> the motif score needs to be above the odds value to get into the final bed.file
+	http://homer.ucsd.edu/homer/motif/
+	http://homer.ucsd.edu/homer/introduction/programs.html
+	bsub -q short -W 04:00 -e /home/mo70w/lsf_jobs/LSB_%J.err -o /home/mo70w/lsf_jobs/LSB_%J.log -n 1 -R select[ib] -R rusage[mem=4096] -N -u marlies.oomen@umassmed.edu -J motif "scanMotifGenomeWide.pl ~/genome/CTCF_motif_searches/CTCF_binding_motif_Kim2007_calculatedodds.motif hg19 -bed"
+		Should be 42066 motifs
+
+
+If you want to only use CTCF motifs that are on ATACseq or ChIPseq peaks, use perl script to stretch the peaks of ATAC/ChIPseq and use bedtools intersect find the CTCF motifs that overlap with the stretched peaks
+	perl stretchBedfile.pl ATACpeaks.bed
+	bedtools intersect -wa -a CTCF_motif.bed -b ATACpeaks.stretched.bed > CTCFmotif_on_ATAC_peaks.bed
+	http://bedtools.readthedocs.io/en/latest/

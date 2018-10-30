@@ -1,4 +1,4 @@
-Using HOMER for ATAC-seq data
+Using HOMER for ATAC-seq and CUT&RUN data
 
 Note 1. Make sure to load the HOMER module 
 Note 2. We cannot use the entire read in the bam file, as we only can be certain the ends of the ATAC reads are accessible. Either seperate your reads in length classes (done in e.g. the V-plots) or use only the first 4bp and last 5bp of each read (scripts/perl/pebam2se_bed_4_5bp.pl)
